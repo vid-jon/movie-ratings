@@ -7,3 +7,8 @@ scala-2.12.10
 
 The below is the spark-submit command to execute the application
 spark-submit --class com.vjo.movie.ratings.MovieRatings --master local --num-executors 2  --driver-memory 1g --executor-memory 2g D:\workspace\movie-ratings\target\scala-2.12\movie-ratings_2.12-0.1.jar D:\workspace\movie-ratings\src\main\resources\app.properties
+
+Please update the above command with the below before running it
+->master URL
+->Absolute path to the app
+->Absolute path app.properties

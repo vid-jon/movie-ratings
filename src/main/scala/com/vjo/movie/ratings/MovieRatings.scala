@@ -49,6 +49,14 @@ object MovieRatings {
     val windowSpec = Window.partitionBy("userId").orderBy($"rating".desc)
     val ranks = ratings.withColumn("rank", rank().over(windowSpec)).withColumn("row_number", row_number().over(windowSpec)).filter($"rank" <= 3 and $"row_number" <= 3).drop("rank", "row_number")
     writeAsParquet(ranks, top3MoviesByUserOutputPath, noOfOutputPartitions)
+
+    //unpersist Dfs and close spark session
+    movies.unpersist()
+    ratings.unpersist()
+    ratingsSummaryByMovie.unpersist()
+    movieRatings.unpersist()
+    ranks.unpersist()
+    spark.close()
   }
 
   def writeFileBySchema(session: SparkSession, inputPath: String, outputPath: String, separator: String, schema: StructType, noOfOutputPartitions: Int): DataFrame = {
@@ -58,7 +66,7 @@ object MovieRatings {
   }
 
   def writeAsParquet(dataFrame: DataFrame, outputPath: String, noOfOutputPartitions: Int): DataFrame = {
-    //update partitions before writing the file if required
+    //update partitions before writing the file if required. This is to fix small output files
     val inputDF = if (noOfOutputPartitions != -1) dataFrame.coalesce(noOfOutputPartitions) else dataFrame
     inputDF.write.parquet(outputPath)
     inputDF
